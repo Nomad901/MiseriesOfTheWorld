@@ -31,6 +31,8 @@ public:
 	void render(SDL_Renderer* pRenderer) override;
 	void update(const Vector2f& pPos) override;
 
+	virtual std::pair<int32_t, bool> manageDamage(SDL_FRect pEnemyRect) = 0;
+	virtual void updateBullets(SDL_Renderer* pRenderer) = 0;
 	virtual void shoot() = 0;
 	virtual bool checkDamage(SDL_FRect pEnemyRect) = 0;
 	virtual void setAsASpecialWeapon() = 0;

@@ -6,11 +6,17 @@
 #include "States/GameStates.h"
 #include "States/Menu.h"
 #include "States/InGame.h"
+#include "Weapons/WeaponVisitor.h"
 
 Handler::Handler(Game* pGame)
-	:mGame(pGame),
-	mInterpolation{ 0.0f }
+	: mGame(pGame),
+	  mInterpolation{ 0.0f }
 {
+	mStorageWeaponVisitor.reserve(3);
+	mStorageWeaponVisitor.push_back(std::make_unique<ShootVisitor>());
+	mStorageWeaponVisitor.push_back(std::make_unique<ReloadVisitor>());
+	mStorageWeaponVisitor.push_back(std::make_unique<RenderUpdateVisitor>(mGame->getRenderer()));
+
 	Assets::init();
 	TextureManager::init();
 	InputManager::init();
@@ -46,20 +52,29 @@ void Handler::actions()
 	{
 		InputManager::getInstance().update(mGame, events);
 
-		if (InputManager::getInstance().isMouseHeld(MouseButton::LEFT))
+		if (InputManager::getInstance().isMouseHeld(MouseButton::LEFT) ||
+			InputManager::getInstance().isMousePressed(MouseButton::LEFT))
 		{
 			auto tmpName = mWeaponManager.weaponIsGripedBy(mFactoryObjects->convertRect(mFactoryObjects->getRect("Character")));
-			if (!tmpName.has_value())
+			if (tmpName.has_value())
 			{
-
+				mWeaponManager.acceptWeapon(*mStorageWeaponVisitor[0],
+											 mWeaponManager.getCurrWeaponType(), 
+											 mWeaponManager.getCurrName());
 			}
 			else
-			{
-			}
+				mWeaponManager.takeWeapon(mFactoryObjects->getRect("Character"), mWeaponManager.getCurrName());
+
 		}
 		if (InputManager::getInstance().isMousePressed(MouseButton::RIGHT))
 		{
-
+			mWeaponManager.acceptWeapon(*mStorageWeaponVisitor[1],
+									     mWeaponManager.getCurrWeaponType(),
+										 mWeaponManager.getCurrName());
+		}
+		if (InputManager::getInstance().isPressed(SDL_SCANCODE_T))
+		{
+			mWeaponManager.throwWeapon(mWeaponManager.getCurrName());
 		}
 
 		if (InputManager::getInstance().isHeld(SDL_SCANCODE_W))
@@ -79,8 +94,19 @@ void Handler::outro()
 {
 	mTimer.startTimer();
 
+	mFactoryObjects->render("Character", mGame->getRenderer(), false);
+	mFactoryObjects->render("Enemy", mGame->getRenderer(), false);
 
-
+	if(!mWeaponManager.getWeapon(mWeaponManager.getCurrName())->getWeaponStates().mIsFreezed)
+	{ 
+		mWeaponManager.getWeapon(mWeaponManager.getCurrName())->updatePositions(mFactoryObjects->getPos("Character"), 
+																			    mFactoryObjects->getPos("Character"));
+		mStorageWeaponVisitor[2]->updatePositions(mFactoryObjects->getPos("Character"), 
+												  mWeaponManager.getWeapon(mWeaponManager.getCurrName())->getWeaponStats().mPos,
+												  { {mFactoryObjects->convertRect(mFactoryObjects->getRect("Enemy"))} });
+	}
+	mWeaponManager.acceptAllWeapons(*mStorageWeaponVisitor[2]);
+	
 	mTimer.setProperFPS(1);
 }
 

@@ -6,29 +6,9 @@
 #include "Game/TextureManager.h"
 #include "Game/AnimateStateMachine.h"
 #include "Game objets/FactoryObjects.h"
+#include "Weapons/WeaponVisitor.h"
 
 class WeaponManager;
-
-//---------------System of Weapons-----------------
-//-------------------------------------------------
-//
-//	the character has 60 (as usual quantity of bullets) bullets and 
-//  he can by all means shoot into the enemies and so on. but also
-//  the character can find some bullets on the ground and at the same time
-//	all weapons have a robustness. the character can shoot as much time as he wants.
-//  BUT! if robustness of the weapon is null - this weapon will be broken and the character
-//  needs to press the button in order to throw away this weapon. cuz this is not available anymore
-// 
-//	
-//	TODO: upgrade the weapons in order to set some improvements(fire buttons and so on)
-// 
-// 
-//-------------------------------------------------
-
-// when the character take some bullets(i will implement this in the bullets class)
-// i will change quantity of bullets here
-
-// setting and getting parameters of Weapons
 
 class Weapon : protected Assets
 {
@@ -88,13 +68,10 @@ public:
 
 	void updatePositions(const Vector2f& pPosChar, const Vector2f& pPosWeapon);
 
-	//virtual void setAsADefaultWeapon() = 0;
 	virtual bool WeaponIsInView(SDL_Rect pCharCollision) = 0;
 	virtual void render(SDL_Renderer* pRenderer) = 0;
 	virtual void update(const Vector2f& pPos) = 0;
-
-//protected:
-//	void defaultParametersWeapons();
+	virtual void accept(WeaponVisitor& pWeaponVisitor) = 0; 
 
 protected:
 	struct WeaponStates

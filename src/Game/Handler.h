@@ -17,6 +17,7 @@ class AnimatedTexture;
 class GameStates;
 class Menu;
 class InGame;
+class WeaponVisitor;
 
 using PATH = std::filesystem::path;
 
@@ -64,6 +65,8 @@ private:
 	RotateMachine mRotate;
 
 	WeaponManager mWeaponManager;
+
+	std::vector<std::unique_ptr<WeaponVisitor>> mStorageWeaponVisitor;
 
 	bool mLost{ false };
 };

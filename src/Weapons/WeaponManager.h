@@ -11,6 +11,16 @@
 #include "Weapons/Shotgun.h"
 #include "Weapons/Tango.h"
 
+enum class WeaponType_
+{
+	RIFLE = 0,
+	PISTOL = 1,
+	BOULDER = 2,
+	KNIFE = 3,
+	SHOTGUN = 4,
+	TANGO = 5
+};
+
 class Weapon;
 
 template<typename T>
@@ -27,6 +37,8 @@ public:
 		requires properWeapon<T>
 	auto createWeapon(std::string_view pName, Args&&... pArgs) -> void;
 	auto removeWeapon(std::string_view pName) -> void;
+	auto acceptWeapon(WeaponVisitor& pWeaponVisitor, WeaponType_ pWeaponType, std::string_view pName) -> void;
+	auto acceptAllWeapons(WeaponVisitor& pWeaponVisitor) -> void;
 
 	auto getWeapon(std::string_view pName) -> Weapon*;
 	template<typename T>
@@ -37,10 +49,15 @@ public:
 	auto getBullets(std::string_view pName) -> Bullets*;
 
 	auto throwWeapon(std::string_view pName) -> void;
-	auto takeWeapon(std::string_view pName)  -> void;
+	auto takeWeapon(SDL_Rect pRect, std::string_view pName)  -> void;
+	auto weaponIsThrown(std::string_view pName) -> bool;
 	auto weaponIsGriped()				     -> std::expected<std::vector<std::string>, std::string_view>;
 	auto weaponIsGripedBy(SDL_FRect pRect)   -> std::expected<std::string, std::string_view>;
 	auto weaponIsInView(SDL_Rect pCharRect)	 -> std::expected<std::vector<std::string>, std::string_view>;
+	auto setCurrentWeaponType(WeaponType_ pWeaponType) -> void;
+	auto setCurrentName(std::string_view pName) -> void;
+	auto getCurrWeaponType() -> WeaponType_;
+	auto getCurrName() -> std::string;
 
 private:
 	struct WeaponRelationship
@@ -48,6 +65,8 @@ private:
 		std::unique_ptr<Weapon> mWeapon;
 		std::unique_ptr<Bullets> mBullets;
 	} mWR;
+	WeaponType_ mCurrWeaponType{ WeaponType_::RIFLE };
+	std::string mCurrNameWeapon{ "Rifle" };
 
 	std::unordered_map<std::string, WeaponRelationship> mStorageWeapons;
 	FactoryObjects mFactoryObjects;

@@ -16,9 +16,9 @@ public:
 					 const Config::BulletsConfig& pBulletsConfig, const Config::WeaponConfig& pWeaponConfig);
 	void initShotgunAutomaticaly(SDL_Renderer* pRenderer, SDL_FRect pCharRect);
 	
-	void updateBullets(SDL_Renderer* pRenderer);
 	std::pair<int32_t, bool> manageDamage(SDL_FRect pEnemyRect);
 
+	void updateBullets(SDL_Renderer* pRenderer) override;
 	void shoot() override;
 	void reload() override;
 	bool checkDamage(SDL_FRect pEnemyRect) override;

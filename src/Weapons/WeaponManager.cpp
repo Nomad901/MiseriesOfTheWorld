@@ -15,8 +15,13 @@ void WeaponManager::initWeapons(SDL_Renderer* pRenderer, SDL_FRect pCharRect)
 	getExactWeapon<Boulder>("Boulder")->get().initBoulderAutomatically(pRenderer, pCharRect);
 	getExactWeapon<Tango>("Tango")->get().initTangoAutomaticaly(pRenderer, pCharRect);
 	getExactWeapon<Shotgun>("Shotgun")->get().initShotgunAutomaticaly(pRenderer, pCharRect);
-	getExactWeapon<Rifle>("Rifle")->get().initRifleAutomaticaly(pRenderer, RifleType::IRREGULAR, pCharRect);
+	getExactWeapon<Rifle>("Rifle")->get().initRifleAutomaticaly(pRenderer, RifleType::DEFAULT, pCharRect);
 	getExactWeapon<Pistol>("Pistol")->get().initPistolAutomaticaly(pRenderer, PistolType::FAST, pCharRect);
+
+	for (auto& i : mStorageWeapons)
+	{
+		i.second.mWeapon->makeFreezed(true);
+	}
 }
 
 void WeaponManager::appendWeapon(std::unique_ptr<Weapon> pWeapon, std::string_view pName)
@@ -34,6 +39,30 @@ void WeaponManager::removeWeapon(std::string_view pName)
 		mStorageWeapons.erase(it);
 	else
 		LOG("There is no such a name!");
+}
+
+auto WeaponManager::acceptWeapon(WeaponVisitor& pWeaponVisitor, WeaponType_ pWeaponType, std::string_view pName) -> void
+{
+	auto it = mStorageWeapons.find(std::string(pName));
+	if (it != mStorageWeapons.end())
+	{
+		it->second.mWeapon->accept(pWeaponVisitor);
+	}
+	else
+	{
+		LOG("There is no such a name!");
+		return;
+	}
+}
+
+auto WeaponManager::acceptAllWeapons(WeaponVisitor& pWeaponVisitor) -> void
+{
+	for (auto& [key, value] : mStorageWeapons)
+	{
+		if(!value.mWeapon->getWeaponStates().mIsFreezed ||
+			key == mCurrNameWeapon)
+			value.mWeapon->accept(pWeaponVisitor);
+	}
 }
 
 Weapon* WeaponManager::getWeapon(std::string_view pName)
@@ -70,16 +99,26 @@ void WeaponManager::throwWeapon(std::string_view pName)
 	mStorageWeapons[std::string(pName)].mWeapon->makeFreezed(true);
 }
 
-void WeaponManager::takeWeapon(std::string_view pName)
+auto WeaponManager::takeWeapon(SDL_Rect pRect, std::string_view pName) -> void
 {
 	if (!mStorageWeapons.contains(std::string(pName)))
 	{
 		LOG("There is no such a name!\n");
 		return;
 	}
-	SDL_FRect tmpRect = mStorageWeapons[std::string(pName)].mWeapon->getCharCollisions().mWeapon;
-	if(mStorageWeapons[std::string(pName)].mWeapon->WeaponIsInView(mFactoryObjects.convertFRect(tmpRect)))
+	if (mStorageWeapons[std::string(pName)].mWeapon->WeaponIsInView(pRect))
 		mStorageWeapons[std::string(pName)].mWeapon->makeFreezed(false);
+}
+
+auto WeaponManager::weaponIsThrown(std::string_view pName) -> bool
+{
+	auto it = mStorageWeapons.find(std::string(pName));
+	if (it != mStorageWeapons.end())
+	{
+		return it->second.mWeapon->getWeaponStates().mIsFreezed;
+	}
+	LOG("There is no such a name!\n");
+	return false;
 }
 
 auto WeaponManager::weaponIsGriped() ->std::expected<std::vector<std::string>, std::string_view>
@@ -125,5 +164,26 @@ auto WeaponManager::weaponIsInView(SDL_Rect pCharRect) -> std::expected<std::vec
 		 ? std::unexpected("None of the weapons in view!\n")
 		 : std::expected<std::vector<std::string>, std::string_view>(tmpVctr);
 }
+
+auto WeaponManager::setCurrentWeaponType(WeaponType_ pWeaponType) -> void
+{
+	mCurrWeaponType = pWeaponType;
+}
+
+auto WeaponManager::setCurrentName(std::string_view pName) -> void
+{
+	mCurrNameWeapon = pName;
+}
+
+auto WeaponManager::getCurrWeaponType() -> WeaponType_
+{
+	return mCurrWeaponType;
+}
+
+auto WeaponManager::getCurrName() -> std::string
+{
+	return mCurrNameWeapon;
+}
+
 
 

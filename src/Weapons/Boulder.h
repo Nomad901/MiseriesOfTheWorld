@@ -13,9 +13,9 @@ public:
 					 SDL_FRect pRect);
 	void initBoulderAutomatically(SDL_Renderer* pRenderer, SDL_FRect pRect);
 
-	void updateBullets(SDL_Renderer* pRenderer);
 	std::pair<int32_t, bool> manageDamage(SDL_FRect pEnemyRect);
 
+	void updateBullets(SDL_Renderer* pRenderer) override;
 	void shoot() override;
 	bool checkDamage(SDL_FRect pEnemyRect) override;
 	void setAsASpecialWeapon() override;
