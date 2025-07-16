@@ -50,7 +50,16 @@ if(WIN32)
             "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2/lib/x64/SDL2.dll"
             "${DLL_DESTINATION}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2/lib/x64/SDL2_gfx.dll"
+            "${DLL_DESTINATION}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2_image/lib/x64/SDL2_image.dll"
+            "${DLL_DESTINATION}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2_mixer/lib/x64/SDL2_mixer.dll"
+            "${DLL_DESTINATION}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2_ttf/lib/x64/SDL2_ttf.dll"
             "${DLL_DESTINATION}"
     )
 endif()
