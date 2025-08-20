@@ -171,4 +171,14 @@ Vector2f InputManager::getMousePos()
     return Vector2f((float) mMouseX, (float) mMouseY);
 }
 
+std::unordered_map<SDL_Scancode, bool>& InputManager::getStorageKeyCodes() noexcept
+{
+    return mStorageKeyCodes;
+}
+
+void InputManager::setScancode(const SDL_Scancode& pKeycode, bool pValue)
+{
+    mStorageKeyCodes[pKeycode] = pValue;
+}
+
 
