@@ -18,7 +18,7 @@ enum class MouseButton {
 
 class Game;
 
-//TODO: isReleased doesnt work cuz of hurring up
+//TODO: isReleased doesnt work cuz of hurrying up
 
 class InputManager : public Singleton<InputManager>
 {
@@ -44,6 +44,9 @@ public:
 
 	Vector2f getMousePos();
 
+	std::unordered_map<SDL_Scancode, bool>& getStorageKeyCodes() noexcept;
+	void setScancode(const SDL_Scancode& pKeycode, bool pValue);
+
 private:
 	InputManager();
 	~InputManager()
@@ -57,6 +60,8 @@ private:
 	const Uint8* mNowKeyboardState{ nullptr };
 	Uint8* mPrevKeyboardState{ nullptr };
 	
+	std::unordered_map<SDL_Scancode, bool> mStorageKeyCodes;
+
 	bool mActive{ false };
 	bool mLocked{ false };
 	
