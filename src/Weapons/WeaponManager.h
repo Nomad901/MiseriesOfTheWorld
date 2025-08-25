@@ -31,33 +31,108 @@ class WeaponManager
 public:
 	WeaponManager() = default;
 	
+	//
+	// automatically initializes all needed weapons with names and so on;
+	//
 	auto initWeapons(SDL_Renderer* pRenderer, SDL_FRect pCharRect) -> void;
+
+	//
+	// directly appends a weapon into the storage;
+	//
 	auto appendWeapon(std::unique_ptr<Weapon> pWeapon, std::string_view pName) -> void;
+
+	//
+	// creates an instance of a class with parameters, which we can pass, but the class is determined by
+	// template type; 
+	//
 	template<typename T, typename... Args>
 		requires properWeapon<T>
 	auto createWeapon(std::string_view pName, Args&&... pArgs) -> void;
-	auto removeWeapon(std::string_view pName) -> void;
-	auto acceptWeapon(WeaponVisitor& pWeaponVisitor, WeaponType_ pWeaponType, std::string_view pName) -> void;
-	auto acceptAllWeapons(WeaponVisitor& pWeaponVisitor) -> void;
 
-	auto getWeapon(std::string_view pName) -> Weapon*;
+	//
+	// deletes a weapon from the storage of weapons;
+	//
+	auto removeWeapon(std::string_view pName) -> void;
+
+	//
+	// returns weapon with the current name of this class;
+	//
+	auto getWeapon() -> Weapon*;
+
+	//
+	// returns an exact weapon class, which is determined by the passed name and a template type; 
+	//
 	template<typename T>
 		requires properWeapon<T>
 	auto getExactWeapon(std::string_view pName) -> std::expected<std::reference_wrapper<T>, std::string_view>;
 
+	//
+	// appends bullets 
+	//
 	auto assignBullets(std::string_view pName, std::unique_ptr<Bullets> pBullets) -> void;
+
+	//
+	// returns quantity of left bullets;
+	//
 	auto getBullets(std::string_view pName) -> Bullets*;
 
+	//
+	// throw weapon away. just make a weapon, with the name, freezed and thats it,
+	// in order to unfreeze this - just need to push some buttons nearby the weapon;
+	//
 	auto throwWeapon(std::string_view pName) -> void;
+
+	//
+	// correlates a weapon with a rectangle (character), so that
+	// the character can bring this, shoot from that and so on;
+	//
 	auto takeWeapon(SDL_Rect pRect, std::string_view pName)  -> void;
+
+	//
+	// checks if weapon with a name is thrown or not (returns bool);
+	//
 	auto weaponIsThrown(std::string_view pName) -> bool;
-	auto weaponIsGriped()				     -> std::expected<std::vector<std::string>, std::string_view>;
-	auto weaponIsGripedBy(SDL_FRect pRect)   -> std::expected<std::string, std::string_view>;
-	auto weaponIsInView(SDL_Rect pCharRect)	 -> std::expected<std::vector<std::string>, std::string_view>;
+
+	//
+	// checks all weapons. if at least one of them is griped - then this function is valid and
+	// it will return the storage with names of this weapons;
+	//
+	auto weaponIsGriped() ->std::expected<std::vector<std::string>, std::string_view>;
+	//
+	// returns a name of a weapon, which is griped currently by the rect;
+	//
+	auto weaponIsGripedBy(SDL_FRect pRect) -> std::expected<std::string, std::string_view>;
+	//
+	// checks an exact weapon, which might be griped right now
+	//
+	auto weaponIsGriped(std::string_view pName) -> bool;
+	//
+	// returns true or false if the weapon with this name is griped by the passed character; 
+	//
+	auto weaponIsGripedBy(std::string_view pName, SDL_FRect pRect) -> bool;
+
+	//
+	// checks if a weapon is in a view of the character;
+	//
+	auto weaponIsInView(SDL_Rect pCharRect)	-> std::expected<std::vector<std::string>, std::string_view>;
+
+	//
+	// optional: sets current weapon type for the class, in order to use just usual functions,
+	// without needs to write an exact type;
+	//
 	auto setCurrentWeaponType(WeaponType_ pWeaponType) -> void;
+	//
+	// the same thing like the function setCurrentWeaponType, but works with names;
+	//
 	auto setCurrentName(std::string_view pName) -> void;
+
+	//
+	// some getters for getting weapon current type and weapon current name;
+	//
+	// ------------------------------------
 	auto getCurrWeaponType() -> WeaponType_;
 	auto getCurrName() -> std::string;
+	// ------------------------------------
 
 private:
 	struct WeaponRelationship
