@@ -30,7 +30,8 @@ bool FactoryOfEntities::isVisible() const noexcept
 
 bool FactoryOfEntities::isGripping(std::string_view pName)
 {
-	return mWeaponManager->getWeapon(pName)->getWeaponStates().mIsFreezed;
+	mWeaponManager->setCurrentName(pName);
+	return mWeaponManager->getWeapon()->getWeaponStates().mIsFreezed;
 }
 
 bool FactoryOfEntities::isGripping(std::unique_ptr<FactoryObjects> pObject)
