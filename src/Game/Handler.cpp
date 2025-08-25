@@ -36,6 +36,7 @@ void Handler::loopBack()
 	mFactoryObjects->appendObject("Enemy", { 800, 600, 100,100 }, { 0,0,0,255 });
 	
 	mWeaponManager.initWeapons(mGame->getRenderer(), mFactoryObjects->convertRect(mFactoryObjects->getRect("Character")));
+	mWeaponManager.setCurrentName("Boulder");
 }
 
 void Handler::actions()
@@ -53,11 +54,11 @@ void Handler::actions()
 			auto tmpName = mWeaponManager.weaponIsGripedBy(mFactoryObjects->convertRect(mFactoryObjects->getRect("Character")));
 			if (tmpName.has_value())
 			{
-				mWeaponManager.takeWeapon(mFactoryObjects->getRect("Character"), mWeaponManager.getCurrName());
+				mWeaponManager.takeWeapon(mFactoryObjects->getRect("Character"), "Boulder");
 			}
 			else
-				mWeaponManager.takeWeapon(mFactoryObjects->getRect("Character"), mWeaponManager.getCurrName());
-
+				mWeaponManager.takeWeapon(mFactoryObjects->getRect("Character"), "Boulder");
+			 
 		}
 		if (InputManager::getInstance().isMousePressed(MouseButton::RIGHT))
 		{
@@ -65,7 +66,7 @@ void Handler::actions()
 		}
 		if (InputManager::getInstance().isPressed(SDL_SCANCODE_T))
 		{
-			mWeaponManager.throwWeapon(mWeaponManager.getCurrName());
+			mWeaponManager.throwWeapon("Boulder");
 		}
 
 		if (InputManager::getInstance().isHeld(SDL_SCANCODE_W))
@@ -108,14 +109,15 @@ void Handler::outro()
 	if(InputManager::getInstance().getStorageKeyCodes()[SDL_SCANCODE_D])
 		mFactoryObjects->setPosition("Character", { mFactoryObjects->getPos("Character").mX + 5, mFactoryObjects->getPos("Character").mY });
 
-
-	if(!mWeaponManager.getWeapon(mWeaponManager.getCurrName())->getWeaponStates().mIsFreezed)
+	if(!mWeaponManager.getWeapon()->getWeaponStates().mIsFreezed)
 	{ 
-		mWeaponManager.getWeapon(mWeaponManager.getCurrName())->updatePositions(mFactoryObjects->getPos("Character"), 
-																			    mFactoryObjects->getPos("Character"));
+		mWeaponManager.getWeapon()->updatePositions(mFactoryObjects->getPos("Character"),
+															 mFactoryObjects->getPos("Character"));
 		
 	}
 	
+	mWeaponManager.getWeapon()->render(mGame->getRenderer());
+
 	mTimer.setProperFPS(1);
 }
 
