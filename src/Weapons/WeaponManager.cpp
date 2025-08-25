@@ -41,34 +41,10 @@ void WeaponManager::removeWeapon(std::string_view pName)
 		LOG("There is no such a name!");
 }
 
-auto WeaponManager::acceptWeapon(WeaponVisitor& pWeaponVisitor, WeaponType_ pWeaponType, std::string_view pName) -> void
+Weapon* WeaponManager::getWeapon()
 {
-	auto it = mStorageWeapons.find(std::string(pName));
-	if (it != mStorageWeapons.end())
-	{
-		it->second.mWeapon->accept(pWeaponVisitor);
-	}
-	else
-	{
-		LOG("There is no such a name!");
-		return;
-	}
-}
-
-auto WeaponManager::acceptAllWeapons(WeaponVisitor& pWeaponVisitor) -> void
-{
-	for (auto& [key, value] : mStorageWeapons)
-	{
-		if(!value.mWeapon->getWeaponStates().mIsFreezed ||
-			key == mCurrNameWeapon)
-			value.mWeapon->accept(pWeaponVisitor);
-	}
-}
-
-Weapon* WeaponManager::getWeapon(std::string_view pName)
-{
-	if (mStorageWeapons.contains(std::string(pName)))
-		return mStorageWeapons[std::string(pName)].mWeapon.get();
+	if (mStorageWeapons.contains(mCurrNameWeapon))
+		return mStorageWeapons[mCurrNameWeapon].mWeapon.get();
 	LOG("There is no such a name!");
 	return nullptr;
 }
@@ -150,6 +126,30 @@ auto WeaponManager::weaponIsGripedBy(SDL_FRect pRect) -> std::expected<std::stri
 		}
 	}
 	return std::unexpected("The character does not grip the weapon!\n");
+}
+
+auto WeaponManager::weaponIsGriped(std::string_view pName) -> bool
+{
+	if (!mStorageWeapons.contains(std::string(pName)))
+	{
+		std::cout << "There is no such a weapon with this name!\n";
+		return false;
+	}
+	if (!mStorageWeapons[std::string(pName)].mWeapon->getWeaponStates().mIsFreezed)
+		return true;
+	return false;
+}
+
+auto WeaponManager::weaponIsGripedBy(std::string_view pName, SDL_FRect pRect) -> bool
+{
+	if (!weaponIsGriped(pName))
+		return false;
+	if (mFactoryObjects.areColliding(mFactoryObjects.convertFRect(mStorageWeapons[std::string(pName)].mWeapon->getCharCollisions().mWeapon),
+								   	 mFactoryObjects.convertFRect(pRect)))
+	{
+		return true;
+	}
+	return false;
 }
 
 auto WeaponManager::weaponIsInView(SDL_Rect pCharRect) -> std::expected<std::vector<std::string>, std::string_view>
